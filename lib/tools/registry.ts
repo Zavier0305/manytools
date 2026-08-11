@@ -5,46 +5,61 @@ export const CATEGORIES: CategoryDefinition[] = [
     id: "text",
     name: "テキスト処理",
     description: "文字数カウントや大文字小文字変換など、文章の編集・整形に役立つツール",
+    section: "tools",
   },
   {
     id: "encode",
     name: "エンコード/デコード",
     description: "Base64やURLエンコードなど、データ形式の変換・生成ツール",
+    section: "tools",
   },
   {
     id: "calc",
     name: "数値・計算",
     description: "電卓やBMI計算など、日常のちょっとした計算に使えるツール",
+    section: "tools",
   },
   {
     id: "unit",
     name: "単位変換",
     description: "長さ・重さ・温度など、単位を相互変換するツール",
+    section: "tools",
   },
   {
     id: "datetime",
     name: "日付・時間",
     description: "タイムスタンプ変換やタイマーなど、日付・時間に関するツール",
+    section: "tools",
   },
   {
     id: "color",
     name: "色・デザイン",
     description: "カラーコード変換やパレット生成など、デザイン作業に役立つツール",
+    section: "tools",
   },
   {
     id: "dev",
     name: "開発者ツール",
     description: "JSON整形やMarkdownプレビューなど、開発者向けのツール",
-  },
-  {
-    id: "random",
-    name: "ランダム・ゲーム",
-    description: "サイコロやくじ引きなど、ランダム性を使った簡易ツール",
+    section: "tools",
   },
   {
     id: "life",
     name: "生活・お金",
     description: "カロリー計算や時給計算など、暮らしに役立つ簡易計算ツール",
+    section: "tools",
+  },
+  {
+    id: "midgame",
+    name: "ミドルゲーム",
+    description: "2048やスネークゲームなど、少し遊び込めるブラウザゲーム",
+    section: "games",
+  },
+  {
+    id: "random",
+    name: "ミニゲーム・ランダム",
+    description: "サイコロやくじ引きなど、ランダム性を使った手軽なミニゲーム・ツール",
+    section: "games",
   },
 ];
 
@@ -166,6 +181,16 @@ export const ALL_TOOLS: ToolDefinition[] = [
   { slug: "work-hours", name: "労働時間計算機", description: "出勤・退勤時刻と休憩時間から実労働時間を計算します。", category: "life", componentKey: "work-hours-calculator", keywords: ["労働時間", "勤怠"] },
   { slug: "electricity-cost", name: "電気代計算機(簡易)", description: "消費電力と使用時間、電力量単価から電気代の目安を計算します。", category: "life", componentKey: "electricity-cost-calculator", keywords: ["電気代"] },
   { slug: "gasoline-cost", name: "ガソリン代計算機", description: "走行距離・燃費・ガソリン単価から燃料費の目安を計算します。", category: "life", componentKey: "gasoline-cost-calculator", keywords: ["ガソリン代", "燃費"] },
+
+  // --- ミドルゲーム (8) ---
+  { slug: "game-2048", name: "2048", description: "数字タイルをスライドさせて合体させ、2048を目指すパズルゲームです。", category: "midgame", componentKey: "game-2048", keywords: ["2048", "パズル"] },
+  { slug: "game-snake", name: "スネークゲーム", description: "矢印キーでヘビを操作してエサを食べ、壁や自分の体にぶつからないように長く生き延びます。", category: "midgame", componentKey: "game-snake", keywords: ["スネーク", "snake"] },
+  { slug: "game-breakout", name: "ブロック崩し", description: "パドルでボールを跳ね返してブロックを全て崩すアクションゲームです。", category: "midgame", componentKey: "game-breakout", keywords: ["ブロック崩し", "breakout"] },
+  { slug: "game-memory", name: "神経衰弱", description: "カードをめくって同じ絵柄のペアを探すカードマッチングゲームです。", category: "midgame", componentKey: "game-memory", keywords: ["神経衰弱", "カードマッチング"] },
+  { slug: "game-typing", name: "タイピングゲーム", description: "制限時間内に表示された単語を正確に入力してスコアを競います。", category: "midgame", componentKey: "game-typing", keywords: ["タイピング", "typing"] },
+  { slug: "game-reversi", name: "リバーシ・オセロ", description: "8×8の盤面でコンピューターと対戦するリバーシ(オセロ)です。", category: "midgame", componentKey: "game-reversi", keywords: ["リバーシ", "オセロ", "othello"] },
+  { slug: "game-whackamole", name: "もぐらたたき", description: "ランダムに出現するモグラを制限時間内にクリックしてスコアを競います。", category: "midgame", componentKey: "game-whackamole", keywords: ["もぐらたたき", "whack-a-mole"] },
+  { slug: "game-meteor-dodge", name: "隕石よけ", description: "左右に動く自機を操作して、降り注ぐ隕石を避け続けるオリジナルの避けゲームです。", category: "midgame", componentKey: "game-meteor-dodge", keywords: ["隕石よけ", "アクション", "オリジナル"] },
 ];
 
 export function getToolBySlug(slug: string): ToolDefinition | undefined {

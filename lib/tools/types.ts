@@ -1,3 +1,5 @@
+export type Section = "tools" | "games";
+
 export type CategoryId =
   | "text"
   | "encode"
@@ -7,12 +9,14 @@ export type CategoryId =
   | "color"
   | "dev"
   | "random"
-  | "life";
+  | "life"
+  | "midgame";
 
 export interface CategoryDefinition {
   id: CategoryId;
   name: string;
   description: string;
+  section: Section;
 }
 
 export interface ToolDefinition {

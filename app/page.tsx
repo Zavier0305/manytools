@@ -1,4 +1,4 @@
-import ToolExplorer from "@/components/home/ToolExplorer";
+import SectionTabs from "@/components/home/SectionTabs";
 import { ALL_TOOLS, CATEGORIES } from "@/lib/tools/registry";
 
 export default function Home() {
@@ -9,11 +9,11 @@ export default function Home() {
           ツール箱100
         </h1>
         <p className="mt-3 max-w-2xl text-slate-600 sm:text-lg">
-          文字数カウント・単位変換・Base64エンコードなど、日常や仕事でよく使うツールを100個集めました。
+          文字数カウント・単位変換・Base64エンコードなどの実用ツールと、2048やスネークゲームなどのブラウザゲームを集めました。
           すべてブラウザ内で完結するのでインストール不要、入力データがサーバーへ送信されることもありません。
         </p>
       </div>
-      <ToolExplorer tools={ALL_TOOLS} categories={CATEGORIES} />
+      <SectionTabs tools={ALL_TOOLS} categories={CATEGORIES} />
     </div>
   );
 }

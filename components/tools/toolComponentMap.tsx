@@ -95,6 +95,16 @@ import RandomStringGenerator from "@/components/tools/random/RandomStringGenerat
 import PasswordStrengthChecker from "@/components/tools/random/PasswordStrengthChecker";
 import RoulettePicker from "@/components/tools/random/RoulettePicker";
 
+// Midgames
+import Game2048 from "@/components/tools/game/Game2048";
+import SnakeGame from "@/components/tools/game/SnakeGame";
+import BreakoutGame from "@/components/tools/game/BreakoutGame";
+import MemoryGame from "@/components/tools/game/MemoryGame";
+import TypingGame from "@/components/tools/game/TypingGame";
+import ReversiGame from "@/components/tools/game/ReversiGame";
+import WhackAMoleGame from "@/components/tools/game/WhackAMoleGame";
+import MeteorDodgeGame from "@/components/tools/game/MeteorDodgeGame";
+
 // Life/money
 import CalorieCalculator from "@/components/tools/life/CalorieCalculator";
 import SavingsGoalSimulator from "@/components/tools/life/SavingsGoalSimulator";
@@ -192,6 +202,15 @@ export const TOOL_COMPONENT_MAP: Record<string, ComponentType<any>> = {
   "random-string-generator": RandomStringGenerator,
   "password-strength-checker": PasswordStrengthChecker,
   "roulette-picker": RoulettePicker,
+
+  "game-2048": Game2048,
+  "game-snake": SnakeGame,
+  "game-breakout": BreakoutGame,
+  "game-memory": MemoryGame,
+  "game-typing": TypingGame,
+  "game-reversi": ReversiGame,
+  "game-whackamole": WhackAMoleGame,
+  "game-meteor-dodge": MeteorDodgeGame,
 
   "calorie-calculator": CalorieCalculator,
   "savings-goal-simulator": SavingsGoalSimulator,
