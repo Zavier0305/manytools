@@ -47,9 +47,25 @@ function createInitialState(rows: number): GameState {
   };
 }
 
+const DIFFICULTY_PRESETS = [
+  { rows: 3, ballSpeed: 0.8, label: "かんたん" },
+  { rows: 5, ballSpeed: 1, label: "標準" },
+  { rows: 6, ballSpeed: 1.3, label: "むずかしい" },
+  { rows: 8, ballSpeed: 1.6, label: "超高難度" },
+];
+
 export default function BreakoutGame({ config }: { config?: Record<string, unknown> }) {
-  const rows = (config?.rows as number) ?? 5;
-  const ballSpeed = (config?.ballSpeed as number) ?? 1;
+  const defaultRows = (config?.rows as number) ?? 5;
+  const defaultDifficultyIndex = Math.max(
+    0,
+    DIFFICULTY_PRESETS.findIndex((p) => p.rows === defaultRows)
+  );
+  const [difficultyIndex, setDifficultyIndex] = useState(
+    defaultDifficultyIndex === -1 ? 1 : defaultDifficultyIndex
+  );
+  const difficulty = DIFFICULTY_PRESETS[difficultyIndex];
+  const rows = difficulty.rows;
+  const ballSpeed = difficulty.ballSpeed;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(createInitialState(rows));
   const keysRef = useRef<Set<string>>(new Set());
@@ -89,12 +105,19 @@ export default function BreakoutGame({ config }: { config?: Record<string, unkno
     state.ball.vy = -4 * ballSpeed;
   }
 
-  function resetGame() {
-    stateRef.current = createInitialState(rows);
+  const launchBallRef = useRef(launchBall);
+  useEffect(() => {
+    launchBallRef.current = launchBall;
+  });
+
+  function resetGame(nextDifficultyIndex = difficultyIndex) {
+    const nextDifficulty = DIFFICULTY_PRESETS[nextDifficultyIndex];
+    stateRef.current = createInitialState(nextDifficulty.rows);
+    setDifficultyIndex(nextDifficultyIndex);
     setScore(0);
     setLives(3);
     setStatus("playing");
-    draw();
+    requestAnimationFrame(draw);
   }
 
   useEffect(() => {
@@ -104,7 +127,7 @@ export default function BreakoutGame({ config }: { config?: Record<string, unkno
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       keysRef.current.add(e.key);
-      if (e.key === " ") launchBall();
+      if (e.key === " ") launchBallRef.current();
     }
     function handleKeyUp(e: KeyboardEvent) {
       keysRef.current.delete(e.key);
@@ -115,7 +138,6 @@ export default function BreakoutGame({ config }: { config?: Record<string, unkno
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handlePointerMove(e: React.MouseEvent<HTMLCanvasElement>) {
@@ -215,7 +237,7 @@ export default function BreakoutGame({ config }: { config?: Record<string, unkno
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-3">
           <div className="tool-panel px-4 py-2 text-center">
             <div className="text-xs text-slate-500">スコア</div>
@@ -226,9 +248,22 @@ export default function BreakoutGame({ config }: { config?: Record<string, unkno
             <div className="text-xl font-bold text-indigo-600">{"❤️".repeat(Math.max(lives, 0)) || "0"}</div>
           </div>
         </div>
-        <button type="button" className="btn-secondary" onClick={resetGame}>
-          {status === "ready" ? "スタート" : "リセット"}
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={difficultyIndex}
+            onChange={(e) => resetGame(Number(e.target.value))}
+            className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          >
+            {DIFFICULTY_PRESETS.map((p, i) => (
+              <option key={p.label} value={i}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="btn-secondary" onClick={() => resetGame()}>
+            {status === "ready" ? "スタート" : "リセット"}
+          </button>
+        </div>
       </div>
       <div className="relative mx-auto" style={{ width: CANVAS_WIDTH }}>
         <canvas
@@ -244,7 +279,7 @@ export default function BreakoutGame({ config }: { config?: Record<string, unkno
             <p className="text-2xl font-bold">
               {status === "ready" ? "ブロック崩し" : status === "won" ? "クリア!🎉" : "ゲームオーバー"}
             </p>
-            <button type="button" className="btn" onClick={resetGame}>
+            <button type="button" className="btn" onClick={() => resetGame()}>
               {status === "ready" ? "スタート" : "もう一度"}
             </button>
           </div>

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { checkWinner, chooseTTTMove, isDraw, type TTTBoard } from "@/lib/game/tictactoe";
 
 export default function TicTacToeGame({ config }: { config?: Record<string, unknown> }) {
-  const difficulty = (config?.difficulty as "easy" | "hard") ?? "hard";
+  const defaultDifficulty = (config?.difficulty as "easy" | "hard") ?? "hard";
+  const [difficulty, setDifficulty] = useState<"easy" | "hard">(defaultDifficulty);
   const [board, setBoard] = useState<TTTBoard>(Array(9).fill(0));
   const [turn, setTurn] = useState<1 | 2>(1);
   const [score, setScore] = useState({ win: 0, lose: 0, draw: 0 });
@@ -47,17 +48,33 @@ export default function TicTacToeGame({ config }: { config?: Record<string, unkn
     setTurn(1);
   }
 
+  function changeDifficulty(next: "easy" | "hard") {
+    setDifficulty(next);
+    setScore({ win: 0, lose: 0, draw: 0 });
+    reset();
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-4 text-sm text-slate-500">
           <span>勝ち: {score.win}</span>
           <span>負け: {score.lose}</span>
           <span>引き分け: {score.draw}</span>
         </div>
-        <button type="button" className="btn-secondary" onClick={reset}>
-          リセット
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={difficulty}
+            onChange={(e) => changeDifficulty(e.target.value as "easy" | "hard")}
+            className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          >
+            <option value="easy">かんたん</option>
+            <option value="hard">ふつう</option>
+          </select>
+          <button type="button" className="btn-secondary" onClick={reset}>
+            リセット
+          </button>
+        </div>
       </div>
       <div className="mx-auto grid w-64 grid-cols-3 gap-2">
         {board.map((cell, i) => (

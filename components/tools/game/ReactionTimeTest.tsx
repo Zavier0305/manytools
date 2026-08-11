@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 type Phase = "idle" | "waiting" | "ready" | "clicked" | "toosoon";
 
 export default function ReactionTimeTest({ config }: { config?: Record<string, unknown> }) {
-  const strictMode = (config?.strictMode as boolean) ?? false;
+  const defaultStrictMode = (config?.strictMode as boolean) ?? false;
+  const [strictMode, setStrictMode] = useState(defaultStrictMode);
   const [phase, setPhase] = useState<Phase>("idle");
   const [results, setResults] = useState<number[]>([]);
   const startTimeRef = useRef(0);
@@ -48,6 +49,18 @@ export default function ReactionTimeTest({ config }: { config?: Record<string, u
 
   return (
     <div className="space-y-4">
+      <label className="flex items-center justify-center gap-2 text-sm text-slate-600">
+        <input
+          type="checkbox"
+          checked={strictMode}
+          onChange={(e) => {
+            setStrictMode(e.target.checked);
+            setResults([]);
+            setPhase("idle");
+          }}
+        />
+        フライング厳禁モード(早クリックで記録リセット)
+      </label>
       <button
         type="button"
         onClick={handleClick}

@@ -1,12 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { pickNextWord, type TypingWord } from "@/lib/game/typingWords";
+import { TYPING_WORD_SET_IDS, pickNextWord, type TypingWord } from "@/lib/game/typingWords";
 
 const DURATION_SECONDS = 60;
 
+const WORD_SET_LABELS: Record<string, string> = {
+  hiragana: "ひらがな",
+  katakana: "カタカナ語",
+  english: "英単語",
+  proverbs: "ことわざ",
+  "it-terms": "IT用語",
+  prefectures: "都道府県",
+  countries: "国名",
+  animals: "動物",
+  food: "食べ物",
+  idioms: "四字熟語",
+};
+
 export default function TypingGame({ config }: { config?: Record<string, unknown> }) {
-  const wordSetId = (config?.wordSetId as string) ?? "hiragana";
+  const defaultWordSetId = (config?.wordSetId as string) ?? "hiragana";
+  const [wordSetId, setWordSetId] = useState(defaultWordSetId);
   const [status, setStatus] = useState<"ready" | "playing" | "over">("ready");
   const [current, setCurrent] = useState<TypingWord | null>(null);
   const [input, setInput] = useState("");
@@ -103,6 +117,20 @@ export default function TypingGame({ config }: { config?: Record<string, unknown
               </p>
             </div>
           )}
+          <div className="mx-auto max-w-xs text-left">
+            <label className="mb-1 block text-sm text-slate-500">単語セットを選択</label>
+            <select
+              value={wordSetId}
+              onChange={(e) => setWordSetId(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            >
+              {TYPING_WORD_SET_IDS.map((id) => (
+                <option key={id} value={id}>
+                  {WORD_SET_LABELS[id] ?? id}
+                </option>
+              ))}
+            </select>
+          </div>
           <button type="button" className="btn" onClick={start}>
             {status === "ready" ? "スタート" : "もう一度"}
           </button>

@@ -5,9 +5,22 @@ import { useEffect, useState } from "react";
 const HOLE_COUNT = 9;
 const DURATION_SECONDS = 30;
 
+const CHARACTER_PRESETS = [
+  { emoji: "🐹", popDurationMs: 700, label: "もぐらたたき" },
+  { emoji: "🥷", popDurationMs: 500, label: "忍者たたき" },
+  { emoji: "🐱", popDurationMs: 700, label: "ねこたたき" },
+  { emoji: "🧟", popDurationMs: 700, label: "ゾンビたたき" },
+  { emoji: "🐹", popDurationMs: 450, label: "もぐらたたき(高速)" },
+];
+
 export default function WhackAMoleGame({ config }: { config?: Record<string, unknown> }) {
-  const emoji = (config?.emoji as string) ?? "🐹";
-  const popDurationMs = (config?.popDurationMs as number) ?? 700;
+  const defaultEmoji = (config?.emoji as string) ?? "🐹";
+  const defaultPresetIndex = Math.max(
+    0,
+    CHARACTER_PRESETS.findIndex((p) => p.emoji === defaultEmoji)
+  );
+  const [presetIndex, setPresetIndex] = useState(defaultPresetIndex === -1 ? 0 : defaultPresetIndex);
+  const { emoji, popDurationMs } = CHARACTER_PRESETS[presetIndex];
   const [status, setStatus] = useState<"ready" | "playing" | "over">("ready");
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(DURATION_SECONDS);
@@ -82,9 +95,25 @@ export default function WhackAMoleGame({ config }: { config?: Record<string, unk
             <div className="text-xl font-bold text-indigo-600">{timeLeft}秒</div>
           </div>
         </div>
-        <button type="button" className="btn-secondary" onClick={start}>
-          {status === "ready" ? "スタート" : "リセット"}
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={presetIndex}
+            onChange={(e) => {
+              setPresetIndex(Number(e.target.value));
+              setStatus("ready");
+            }}
+            className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          >
+            {CHARACTER_PRESETS.map((p, i) => (
+              <option key={p.label} value={i}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="btn-secondary" onClick={start}>
+            {status === "ready" ? "スタート" : "リセット"}
+          </button>
+        </div>
       </div>
 
       <div className="relative mx-auto grid max-w-sm grid-cols-3 gap-3">

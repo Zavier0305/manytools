@@ -12,7 +12,8 @@ import {
 } from "@/lib/game/reversi";
 
 export default function ReversiGame({ config }: { config?: Record<string, unknown> }) {
-  const difficulty = (config?.difficulty as "easy" | "hard") ?? "hard";
+  const defaultDifficulty = (config?.difficulty as "easy" | "hard") ?? "hard";
+  const [difficulty, setDifficulty] = useState<"easy" | "hard">(defaultDifficulty);
   const [board, setBoard] = useState<ReversiBoard>(() => createInitialBoard());
   const [currentPlayer, setCurrentPlayer] = useState<Cell>(1);
   const [gameOver, setGameOver] = useState(false);
@@ -66,7 +67,8 @@ export default function ReversiGame({ config }: { config?: Record<string, unknow
     setCurrentPlayer(2);
   }
 
-  function resetGame() {
+  function resetGame(nextDifficulty = difficulty) {
+    setDifficulty(nextDifficulty);
     setBoard(createInitialBoard());
     setCurrentPlayer(1);
     setGameOver(false);
@@ -78,7 +80,7 @@ export default function ReversiGame({ config }: { config?: Record<string, unknow
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-3">
           <div className="tool-panel px-4 py-2 text-center">
             <div className="text-xs text-slate-500">あなた(黒)</div>
@@ -89,9 +91,19 @@ export default function ReversiGame({ config }: { config?: Record<string, unknow
             <div className="text-xl font-bold text-slate-800">{white}</div>
           </div>
         </div>
-        <button type="button" className="btn-secondary" onClick={resetGame}>
-          新しいゲーム
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={difficulty}
+            onChange={(e) => resetGame(e.target.value as "easy" | "hard")}
+            className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          >
+            <option value="easy">かんたん</option>
+            <option value="hard">ふつう</option>
+          </select>
+          <button type="button" className="btn-secondary" onClick={() => resetGame()}>
+            新しいゲーム
+          </button>
+        </div>
       </div>
 
       <div className="mx-auto grid w-full max-w-md grid-cols-8 gap-0.5 rounded-lg bg-green-800 p-1">
