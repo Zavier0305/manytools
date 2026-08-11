@@ -3,23 +3,37 @@
 import { useEffect, useState } from "react";
 import { createBoard, isWon, revealCell, type MineBoard } from "@/lib/game/minesweeper";
 
+const DIFFICULTY_PRESETS = [
+  { rows: 9, cols: 9, mines: 10, label: "初級" },
+  { rows: 16, cols: 16, mines: 40, label: "中級" },
+  { rows: 16, cols: 30, mines: 99, label: "上級" },
+];
+
 export default function MinesweeperGame({ config }: { config?: Record<string, unknown> }) {
-  const rows = (config?.rows as number) ?? 9;
-  const cols = (config?.cols as number) ?? 9;
-  const mines = (config?.mines as number) ?? 10;
+  const defaultRows = (config?.rows as number) ?? 9;
+  const defaultDifficultyIndex = Math.max(
+    0,
+    DIFFICULTY_PRESETS.findIndex((p) => p.rows === defaultRows)
+  );
+  const [difficultyIndex, setDifficultyIndex] = useState(
+    defaultDifficultyIndex === -1 ? 0 : defaultDifficultyIndex
+  );
+  const { cols, mines } = DIFFICULTY_PRESETS[difficultyIndex];
 
   const [board, setBoard] = useState<MineBoard | null>(null);
   const [gameOver, setGameOver] = useState(false);
 
-  function newGame() {
-    setBoard(createBoard(rows, cols, mines));
+  function newGame(nextDifficultyIndex = difficultyIndex) {
+    const next = DIFFICULTY_PRESETS[nextDifficultyIndex];
+    setDifficultyIndex(nextDifficultyIndex);
+    setBoard(createBoard(next.rows, next.cols, next.mines));
     setGameOver(false);
   }
 
   useEffect(() => {
     // Mine placement uses randomness, so it runs client-side after mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    newGame();
+    newGame(difficultyIndex);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -50,9 +64,22 @@ export default function MinesweeperGame({ config }: { config?: Record<string, un
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">💣 {mines}個</p>
-        <button type="button" className="btn-secondary" onClick={newGame}>
-          リセット
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={difficultyIndex}
+            onChange={(e) => newGame(Number(e.target.value))}
+            className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          >
+            {DIFFICULTY_PRESETS.map((p, i) => (
+              <option key={p.label} value={i}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="btn-secondary" onClick={() => newGame()}>
+            リセット
+          </button>
+        </div>
       </div>
       <div
         className="mx-auto grid w-fit gap-0.5 rounded-lg bg-slate-300 p-1"

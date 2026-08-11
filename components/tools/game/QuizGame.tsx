@@ -12,8 +12,11 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+const TOPIC_IDS = Object.keys(QUIZ_TOPICS);
+
 export default function QuizGame({ config }: { config?: Record<string, unknown> }) {
-  const topicId = (config?.topicId as string) ?? Object.keys(QUIZ_TOPICS)[0];
+  const defaultTopicId = (config?.topicId as string) ?? TOPIC_IDS[0];
+  const [topicId, setTopicId] = useState(defaultTopicId);
   const topic = QUIZ_TOPICS[topicId];
 
   const [order, setOrder] = useState<number[] | null>(null);
@@ -55,7 +58,21 @@ export default function QuizGame({ config }: { config?: Record<string, unknown> 
 
   if (!order) {
     return (
-      <div className="tool-panel space-y-3 text-center">
+      <div className="tool-panel space-y-4 text-center">
+        <div className="text-left">
+          <label className="mb-1 block text-sm text-slate-500">ジャンルを選択</label>
+          <select
+            value={topicId}
+            onChange={(e) => setTopicId(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          >
+            {TOPIC_IDS.map((id) => (
+              <option key={id} value={id}>
+                {QUIZ_TOPICS[id].name}
+              </option>
+            ))}
+          </select>
+        </div>
         <p className="text-slate-600">{topic.name}(全{questions.length}問)</p>
         <button type="button" className="btn" onClick={start}>
           スタート
@@ -70,9 +87,14 @@ export default function QuizGame({ config }: { config?: Record<string, unknown> 
         <p className="text-2xl font-bold text-indigo-600">
           {score} / {questions.length} 問正解!
         </p>
-        <button type="button" className="btn" onClick={start}>
-          もう一度
-        </button>
+        <div className="flex justify-center gap-2">
+          <button type="button" className="btn" onClick={start}>
+            もう一度
+          </button>
+          <button type="button" className="btn-secondary" onClick={() => setOrder(null)}>
+            ジャンルを変える
+          </button>
+        </div>
       </div>
     );
   }

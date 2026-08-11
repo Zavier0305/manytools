@@ -5,16 +5,32 @@ import { canMove, generateMaze, type Maze } from "@/lib/game/maze";
 
 const CELL_SIZE = 24;
 
+const SIZE_PRESETS = [
+  { size: 6, label: "ミニ" },
+  { size: 8, label: "小" },
+  { size: 12, label: "中" },
+  { size: 16, label: "大" },
+  { size: 20, label: "特大" },
+];
+
 export default function MazeGame({ config }: { config?: Record<string, unknown> }) {
-  const size = (config?.size as number) ?? 10;
+  const defaultSize = (config?.size as number) ?? 12;
+  const defaultSizeIndex = Math.max(
+    0,
+    SIZE_PRESETS.findIndex((p) => p.size === defaultSize)
+  );
+  const [sizeIndex, setSizeIndex] = useState(defaultSizeIndex === -1 ? 2 : defaultSizeIndex);
+  const size = SIZE_PRESETS[sizeIndex].size;
   const [maze, setMaze] = useState<Maze | null>(null);
   const [player, setPlayer] = useState({ x: 0, y: 0 });
   const [seconds, setSeconds] = useState(0);
   const [won, setWon] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  function newMaze() {
-    setMaze(generateMaze(size, size));
+  function newMaze(nextSizeIndex = sizeIndex) {
+    const nextSize = SIZE_PRESETS[nextSizeIndex].size;
+    setSizeIndex(nextSizeIndex);
+    setMaze(generateMaze(nextSize, nextSize));
     setPlayer({ x: 0, y: 0 });
     setSeconds(0);
     setWon(false);
@@ -23,7 +39,7 @@ export default function MazeGame({ config }: { config?: Record<string, unknown> 
   useEffect(() => {
     // Maze generation uses randomness, so it happens client-side after mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    newMaze();
+    newMaze(sizeIndex);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -109,9 +125,22 @@ export default function MazeGame({ config }: { config?: Record<string, unknown> 
           <div className="text-xs text-slate-500">経過時間</div>
           <div className="text-xl font-bold text-indigo-600">{seconds}秒</div>
         </div>
-        <button type="button" className="btn-secondary" onClick={newMaze}>
-          新しい迷路
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={sizeIndex}
+            onChange={(e) => newMaze(Number(e.target.value))}
+            className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          >
+            {SIZE_PRESETS.map((p, i) => (
+              <option key={p.label} value={i}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="btn-secondary" onClick={() => newMaze()}>
+            新しい迷路
+          </button>
+        </div>
       </div>
       <div className="relative mx-auto" style={{ width: size * CELL_SIZE }}>
         <canvas
@@ -123,7 +152,7 @@ export default function MazeGame({ config }: { config?: Record<string, unknown> 
         {won && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-white/90 text-center">
             <p className="text-2xl font-bold text-indigo-600">ゴール!🎉 {seconds}秒</p>
-            <button type="button" className="btn" onClick={newMaze}>
+            <button type="button" className="btn" onClick={() => newMaze()}>
               もう一度
             </button>
           </div>

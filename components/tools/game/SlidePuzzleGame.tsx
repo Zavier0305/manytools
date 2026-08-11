@@ -3,20 +3,34 @@
 import { useEffect, useState } from "react";
 import { canSlide, isSolved, shufflePuzzle } from "@/lib/game/slidePuzzle";
 
+const SIZE_PRESETS = [
+  { size: 3, label: "3×3(8パズル)" },
+  { size: 4, label: "4×4(15パズル)" },
+  { size: 5, label: "5×5(24パズル)" },
+];
+
 export default function SlidePuzzleGame({ config }: { config?: Record<string, unknown> }) {
-  const size = (config?.size as number) ?? 4;
+  const defaultSize = (config?.size as number) ?? 4;
+  const defaultSizeIndex = Math.max(
+    0,
+    SIZE_PRESETS.findIndex((p) => p.size === defaultSize)
+  );
+  const [sizeIndex, setSizeIndex] = useState(defaultSizeIndex === -1 ? 1 : defaultSizeIndex);
+  const size = SIZE_PRESETS[sizeIndex].size;
   const [tiles, setTiles] = useState<number[] | null>(null);
   const [moves, setMoves] = useState(0);
 
-  function newGame() {
-    setTiles(shufflePuzzle(size));
+  function newGame(nextSizeIndex = sizeIndex) {
+    const nextSize = SIZE_PRESETS[nextSizeIndex].size;
+    setSizeIndex(nextSizeIndex);
+    setTiles(shufflePuzzle(nextSize));
     setMoves(0);
   }
 
   useEffect(() => {
     // Shuffling requires randomness, so it runs client-side after mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    newGame();
+    newGame(sizeIndex);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -39,9 +53,22 @@ export default function SlidePuzzleGame({ config }: { config?: Record<string, un
           <div className="text-xs text-slate-500">手数</div>
           <div className="text-xl font-bold text-indigo-600">{moves}</div>
         </div>
-        <button type="button" className="btn-secondary" onClick={newGame}>
-          リセット
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={sizeIndex}
+            onChange={(e) => newGame(Number(e.target.value))}
+            className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          >
+            {SIZE_PRESETS.map((p, i) => (
+              <option key={p.label} value={i}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="btn-secondary" onClick={() => newGame()}>
+            リセット
+          </button>
+        </div>
       </div>
       <div
         className="relative mx-auto grid max-w-sm gap-1 rounded-xl bg-slate-300 p-1"

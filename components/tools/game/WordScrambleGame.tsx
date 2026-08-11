@@ -18,8 +18,11 @@ function shuffleWord(word: string): string {
   return shuffled;
 }
 
+const CATEGORY_IDS = Object.keys(WORD_CATEGORIES);
+
 export default function WordScrambleGame({ config }: { config?: Record<string, unknown> }) {
-  const categoryId = (config?.category as string) ?? Object.keys(WORD_CATEGORIES)[0];
+  const defaultCategoryId = (config?.category as string) ?? CATEGORY_IDS[0];
+  const [categoryId, setCategoryId] = useState(defaultCategoryId);
   const category = WORD_CATEGORIES[categoryId];
 
   const [status, setStatus] = useState<"ready" | "playing" | "over">("ready");
@@ -103,6 +106,20 @@ export default function WordScrambleGame({ config }: { config?: Record<string, u
       {status !== "playing" && (
         <div className="tool-panel space-y-3 text-center">
           {status === "over" && <p className="text-2xl font-bold text-indigo-600">正解数: {score}語</p>}
+          <div className="mx-auto max-w-xs text-left">
+            <label className="mb-1 block text-sm text-slate-500">カテゴリを選択</label>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            >
+              {CATEGORY_IDS.map((id) => (
+                <option key={id} value={id}>
+                  {WORD_CATEGORIES[id].name}
+                </option>
+              ))}
+            </select>
+          </div>
           <button type="button" className="btn" onClick={start}>
             {status === "ready" ? "スタート" : "もう一度"}
           </button>

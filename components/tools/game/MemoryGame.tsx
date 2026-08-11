@@ -1,30 +1,30 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createShuffledCards, type MemoryCard } from "@/lib/game/memory";
+import { MEMORY_THEMES, createShuffledCards, type MemoryCard } from "@/lib/game/memory";
+
+const THEME_IDS = Object.keys(MEMORY_THEMES);
 
 export default function MemoryGame({ config }: { config?: Record<string, unknown> }) {
-  const theme = (config?.theme as string) ?? "fruits";
+  const defaultTheme = (config?.theme as string) ?? "fruits";
+  const [theme, setTheme] = useState(defaultTheme);
   const [cards, setCards] = useState<MemoryCard[] | null>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const lockRef = useRef(false);
 
-  function newGame() {
-    setCards(createShuffledCards(theme));
+  function newGame(themeId: string) {
+    setCards(createShuffledCards(themeId));
     setSelected([]);
     setMoves(0);
     setSeconds(0);
     lockRef.current = false;
   }
 
-  useEffect(() => {
-    // Shuffling needs randomness, so the first deal happens client-side after mount.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    newGame();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  function backToThemeSelect() {
+    setCards(null);
+  }
 
   const won = cards?.every((c) => c.matched) ?? false;
 
@@ -71,6 +71,30 @@ export default function MemoryGame({ config }: { config?: Record<string, unknown
     }
   }
 
+  if (!cards) {
+    return (
+      <div className="tool-panel space-y-4 text-center">
+        <div className="text-left">
+          <label className="mb-1 block text-sm text-slate-500">テーマを選択</label>
+          <select
+            value={theme}
+            onChange={(e) => setTheme(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          >
+            {THEME_IDS.map((id) => (
+              <option key={id} value={id}>
+                {MEMORY_THEMES[id].name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button type="button" className="btn" onClick={() => newGame(theme)}>
+          スタート
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -84,9 +108,14 @@ export default function MemoryGame({ config }: { config?: Record<string, unknown
             <div className="text-xl font-bold text-indigo-600">{seconds}秒</div>
           </div>
         </div>
-        <button type="button" className="btn-secondary" onClick={newGame}>
-          リセット
-        </button>
+        <div className="flex gap-2">
+          <button type="button" className="btn-secondary" onClick={() => newGame(theme)}>
+            リセット
+          </button>
+          <button type="button" className="btn-secondary" onClick={backToThemeSelect}>
+            テーマを変える
+          </button>
+        </div>
       </div>
 
       <div className="relative mx-auto grid max-w-md grid-cols-4 gap-2">

@@ -24,8 +24,11 @@ const KEYBOARD_ROWS = [
 
 const MAX_MISSES = 6;
 
+const CATEGORY_IDS = Object.keys(WORD_CATEGORIES);
+
 export default function HangmanGame({ config }: { config?: Record<string, unknown> }) {
-  const categoryId = (config?.category as string) ?? Object.keys(WORD_CATEGORIES)[0];
+  const defaultCategoryId = (config?.category as string) ?? CATEGORY_IDS[0];
+  const [categoryId, setCategoryId] = useState(defaultCategoryId);
   const category = WORD_CATEGORIES[categoryId];
 
   const [word, setWord] = useState(category.words[0]);
@@ -51,10 +54,28 @@ export default function HangmanGame({ config }: { config?: Record<string, unknow
     setMisses(0);
   }
 
+  function changeCategory(id: string) {
+    const nextCategory = WORD_CATEGORIES[id];
+    setCategoryId(id);
+    setWord(nextCategory.words[Math.floor(Math.random() * nextCategory.words.length)]);
+    setGuessed(new Set());
+    setMisses(0);
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">{category.name}のことば</p>
+      <div className="flex items-center justify-between gap-3">
+        <select
+          value={categoryId}
+          onChange={(e) => changeCategory(e.target.value)}
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+        >
+          {CATEGORY_IDS.map((id) => (
+            <option key={id} value={id}>
+              {WORD_CATEGORIES[id].name}
+            </option>
+          ))}
+        </select>
         <div className="tool-panel px-3 py-1 text-sm">
           ミス: {misses} / {MAX_MISSES}
         </div>

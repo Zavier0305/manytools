@@ -22,9 +22,22 @@ interface GameState {
   alive: boolean;
 }
 
+const SPEED_PRESETS = [
+  { speedMultiplier: 1, id: "normal", label: "標準" },
+  { speedMultiplier: 1.5, id: "fast", label: "高速" },
+  { speedMultiplier: 2, id: "extreme", label: "超高速" },
+];
+
 export default function MeteorDodgeGame({ config }: { config?: Record<string, unknown> }) {
-  const speedMultiplier = (config?.speedMultiplier as number) ?? 1;
-  const storageKey = `meteor-dodge-best-${(config?.variantId as string) ?? "default"}`;
+  const defaultVariantId = (config?.variantId as string) ?? "normal";
+  const defaultPresetIndex = Math.max(
+    0,
+    SPEED_PRESETS.findIndex((p) => p.id === defaultVariantId)
+  );
+  const [presetIndex, setPresetIndex] = useState(defaultPresetIndex === -1 ? 0 : defaultPresetIndex);
+  const preset = SPEED_PRESETS[presetIndex];
+  const speedMultiplier = preset.speedMultiplier;
+  const storageKey = `meteor-dodge-best-${preset.id}`;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState | null>(null);
   const keysRef = useRef<Set<string>>(new Set());
@@ -158,9 +171,27 @@ export default function MeteorDodgeGame({ config }: { config?: Record<string, un
             <div className="text-xl font-bold text-indigo-600">{best}秒</div>
           </div>
         </div>
-        <button type="button" className="btn-secondary" onClick={start}>
-          {status === "ready" ? "スタート" : "リセット"}
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={presetIndex}
+            onChange={(e) => {
+              const nextIndex = Number(e.target.value);
+              setPresetIndex(nextIndex);
+              setBest(Number(localStorage.getItem(`meteor-dodge-best-${SPEED_PRESETS[nextIndex].id}`) ?? 0));
+              setStatus("ready");
+            }}
+            className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          >
+            {SPEED_PRESETS.map((p, i) => (
+              <option key={p.id} value={i}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="btn-secondary" onClick={start}>
+            {status === "ready" ? "スタート" : "リセット"}
+          </button>
+        </div>
       </div>
       <div className="relative mx-auto" style={{ width: CANVAS_WIDTH }}>
         <canvas

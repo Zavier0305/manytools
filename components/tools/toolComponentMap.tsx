@@ -202,6 +202,12 @@ import BubbleClickGame from "@/components/tools/game/BubbleClickGame";
 import TimingBarGame from "@/components/tools/game/TimingBarGame";
 import NumberSequenceGame from "@/components/tools/game/NumberSequenceGame";
 import PongGame from "@/components/tools/game/PongGame";
+import LightsOutGame from "@/components/tools/game/LightsOutGame";
+import MiniSudokuGame from "@/components/tools/game/MiniSudokuGame";
+import Match3Game from "@/components/tools/game/Match3Game";
+import BlockStackerGame from "@/components/tools/game/BlockStackerGame";
+import FlappyGame from "@/components/tools/game/FlappyGame";
+import SokobanGame from "@/components/tools/game/SokobanGame";
 
 // Life/money
 import CalorieCalculator from "@/components/tools/life/CalorieCalculator";
@@ -414,6 +420,12 @@ export const TOOL_COMPONENT_MAP: Record<string, ComponentType<any>> = {
   "timing-bar-game": TimingBarGame,
   "number-sequence-game": NumberSequenceGame,
   "pong-game": PongGame,
+  "lights-out-game": LightsOutGame,
+  "mini-sudoku-game": MiniSudokuGame,
+  "match3-game": Match3Game,
+  "block-stacker-game": BlockStackerGame,
+  "flappy-game": FlappyGame,
+  "sokoban-game": SokobanGame,
 
   "calorie-calculator": CalorieCalculator,
   "savings-goal-simulator": SavingsGoalSimulator,
