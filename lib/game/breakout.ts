@@ -22,9 +22,9 @@ export interface Brick {
   color: string;
 }
 
-export function createBricks(): Brick[] {
+export function createBricks(rows = BRICK_ROWS): Brick[] {
   const bricks: Brick[] = [];
-  for (let row = 0; row < BRICK_ROWS; row++) {
+  for (let row = 0; row < rows; row++) {
     for (let col = 0; col < BRICK_COLS; col++) {
       bricks.push({
         x: BRICK_SIDE_OFFSET + col * (BRICK_WIDTH + BRICK_PADDING),

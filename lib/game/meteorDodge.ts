@@ -12,9 +12,9 @@ export interface Meteor {
   vy: number;
 }
 
-export function createMeteor(elapsedSeconds: number): Meteor {
+export function createMeteor(elapsedSeconds: number, speedMultiplier = 1): Meteor {
   const radius = 10 + Math.random() * 14;
-  const baseSpeed = 2.2 + Math.min(elapsedSeconds * 0.08, 4.5);
+  const baseSpeed = (2.2 + Math.min(elapsedSeconds * 0.08, 4.5)) * speedMultiplier;
   return {
     x: radius + Math.random() * (CANVAS_WIDTH - radius * 2),
     y: -radius,
@@ -23,8 +23,8 @@ export function createMeteor(elapsedSeconds: number): Meteor {
   };
 }
 
-export function spawnIntervalMs(elapsedSeconds: number): number {
-  return Math.max(220, 650 - elapsedSeconds * 10);
+export function spawnIntervalMs(elapsedSeconds: number, speedMultiplier = 1): number {
+  return Math.max(150, (650 - elapsedSeconds * 10) / speedMultiplier);
 }
 
 export function circleRectCollide(meteor: Meteor, shipX: number): boolean {

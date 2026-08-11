@@ -22,7 +22,9 @@ interface GameState {
   alive: boolean;
 }
 
-export default function MeteorDodgeGame() {
+export default function MeteorDodgeGame({ config }: { config?: Record<string, unknown> }) {
+  const speedMultiplier = (config?.speedMultiplier as number) ?? 1;
+  const storageKey = `meteor-dodge-best-${(config?.variantId as string) ?? "default"}`;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState | null>(null);
   const keysRef = useRef<Set<string>>(new Set());
@@ -33,7 +35,8 @@ export default function MeteorDodgeGame() {
   useEffect(() => {
     // localStorage is only available client-side after mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setBest(Number(localStorage.getItem("meteor-dodge-best") ?? 0));
+    setBest(Number(localStorage.getItem(storageKey) ?? 0));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function draw() {
@@ -112,9 +115,9 @@ export default function MeteorDodgeGame() {
       const elapsedSeconds = (now - state.startTime) / 1000;
       setElapsed(elapsedSeconds);
 
-      if (now - state.lastSpawn > spawnIntervalMs(elapsedSeconds)) {
+      if (now - state.lastSpawn > spawnIntervalMs(elapsedSeconds, speedMultiplier)) {
         state.lastSpawn = now;
-        state.meteors.push(createMeteor(elapsedSeconds));
+        state.meteors.push(createMeteor(elapsedSeconds, speedMultiplier));
       }
 
       state.meteors.forEach((m) => (m.y += m.vy));
@@ -126,7 +129,7 @@ export default function MeteorDodgeGame() {
           setStatus("over");
           setBest((b) => {
             const nb = Math.max(b, Math.floor(elapsedSeconds));
-            localStorage.setItem("meteor-dodge-best", String(nb));
+            localStorage.setItem(storageKey, String(nb));
             return nb;
           });
           break;
@@ -139,6 +142,7 @@ export default function MeteorDodgeGame() {
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   return (

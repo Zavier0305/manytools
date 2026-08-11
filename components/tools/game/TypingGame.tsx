@@ -5,7 +5,8 @@ import { pickNextWord, type TypingWord } from "@/lib/game/typingWords";
 
 const DURATION_SECONDS = 60;
 
-export default function TypingGame() {
+export default function TypingGame({ config }: { config?: Record<string, unknown> }) {
+  const wordSetId = (config?.wordSetId as string) ?? "hiragana";
   const [status, setStatus] = useState<"ready" | "playing" | "over">("ready");
   const [current, setCurrent] = useState<TypingWord | null>(null);
   const [input, setInput] = useState("");
@@ -16,7 +17,7 @@ export default function TypingGame() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function start() {
-    const word = pickNextWord(null);
+    const word = pickNextWord(null, wordSetId);
     setCurrent(word);
     setInput("");
     setCorrectChars(0);
@@ -48,7 +49,7 @@ export default function TypingGame() {
     if (value === current.romaji) {
       setCorrectChars((c) => c + current.romaji.length);
       setWordsCleared((w) => w + 1);
-      setCurrent(pickNextWord(current));
+      setCurrent(pickNextWord(current, wordSetId));
       setInput("");
     }
   }
@@ -108,7 +109,7 @@ export default function TypingGame() {
         </div>
       )}
       <p className="text-center text-sm text-slate-500">
-        表示されたひらがなをローマ字で入力してください({DURATION_SECONDS}秒間)
+        表示された単語を正確に入力してください({DURATION_SECONDS}秒間)
       </p>
     </div>
   );

@@ -50,7 +50,11 @@ const KEY_TO_DIRECTION: Record<string, Direction> = {
   ArrowRight: "right",
 };
 
-export default function Game2048() {
+export default function Game2048({ config }: { config?: Record<string, unknown> }) {
+  const size = (config?.size as number) ?? 4;
+  const target = (config?.target as number) ?? 2048;
+  const storageKey = `game2048-best-${(config?.variantId as string) ?? "default"}`;
+
   const [state, setState] = useState<GameState>(INITIAL_STATE);
   const stateRef = useRef(state);
 
@@ -59,11 +63,12 @@ export default function Game2048() {
   });
 
   useEffect(() => {
-    const savedBest = Number(localStorage.getItem("game2048-best") ?? 0);
+    const savedBest = Number(localStorage.getItem(storageKey) ?? 0);
     // Initial board/best score require the browser (randomness + localStorage), so this
     // client-only setup happens once after mount rather than during render.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setState((s) => ({ ...s, board: createInitialBoard(), best: savedBest }));
+    setState((s) => ({ ...s, board: createInitialBoard(size), best: savedBest }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -79,10 +84,10 @@ export default function Game2048() {
       const nextBoard = addRandomTile(result.board);
       const nextScore = current.score + result.scoreGained;
       const nextBest = Math.max(current.best, nextScore);
-      const won = current.won || hasWon(nextBoard);
+      const won = current.won || hasWon(nextBoard, target);
       const over = isGameOver(nextBoard);
 
-      localStorage.setItem("game2048-best", String(nextBest));
+      localStorage.setItem(storageKey, String(nextBest));
       setState({
         board: nextBoard,
         score: nextScore,
@@ -94,11 +99,12 @@ export default function Game2048() {
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function newGame() {
     const best = state.best;
-    setState({ ...INITIAL_STATE, best, board: createInitialBoard() });
+    setState({ ...INITIAL_STATE, best, board: createInitialBoard(size) });
   }
 
   return (
@@ -120,7 +126,7 @@ export default function Game2048() {
       </div>
 
       <div className="relative mx-auto w-full max-w-sm rounded-xl bg-slate-300 p-2">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}>
           {state.board
             ? state.board.flat().map((value, i) => (
                 <div
@@ -132,7 +138,7 @@ export default function Game2048() {
                   {value || ""}
                 </div>
               ))
-            : Array.from({ length: 16 }, (_, i) => (
+            : Array.from({ length: size * size }, (_, i) => (
                 <div key={i} className="aspect-square rounded-lg bg-slate-200/60" />
               ))}
         </div>
@@ -140,7 +146,7 @@ export default function Game2048() {
         {(state.gameOver || (state.won && !state.keepPlaying)) && state.board && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl bg-white/85 text-center">
             <p className="text-2xl font-bold text-slate-800">
-              {state.won && !state.gameOver ? "2048達成!🎉" : "ゲームオーバー"}
+              {state.won && !state.gameOver ? `${target}達成!🎉` : "ゲームオーバー"}
             </p>
             <div className="flex gap-2">
               {state.won && !state.gameOver && (

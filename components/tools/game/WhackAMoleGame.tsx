@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 
 const HOLE_COUNT = 9;
 const DURATION_SECONDS = 30;
-const POP_DURATION_MS = 700;
 
-export default function WhackAMoleGame() {
+export default function WhackAMoleGame({ config }: { config?: Record<string, unknown> }) {
+  const emoji = (config?.emoji as string) ?? "🐹";
+  const popDurationMs = (config?.popDurationMs as number) ?? 700;
   const [status, setStatus] = useState<"ready" | "playing" | "over">("ready");
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(DURATION_SECONDS);
@@ -48,7 +49,7 @@ export default function WhackAMoleGame() {
         if (cancelled) return;
         setActiveIndex((cur) => (cur === idx ? null : cur));
         spawnTimeout = setTimeout(spawn, 300 + Math.random() * 500);
-      }, POP_DURATION_MS);
+      }, popDurationMs);
     }
 
     spawnTimeout = setTimeout(spawn, 400);
@@ -57,6 +58,7 @@ export default function WhackAMoleGame() {
       clearTimeout(hideTimeout);
       clearTimeout(spawnTimeout);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   function handleWhack(idx: number) {
@@ -100,7 +102,7 @@ export default function WhackAMoleGame() {
                 activeIndex === i ? "scale-100" : "scale-0"
               }`}
             >
-              🐹
+              {emoji}
             </span>
           </button>
         ))}

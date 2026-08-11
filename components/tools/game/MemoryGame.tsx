@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createShuffledCards, type MemoryCard } from "@/lib/game/memory";
 
-export default function MemoryGame() {
+export default function MemoryGame({ config }: { config?: Record<string, unknown> }) {
+  const theme = (config?.theme as string) ?? "fruits";
   const [cards, setCards] = useState<MemoryCard[] | null>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
@@ -11,7 +12,7 @@ export default function MemoryGame() {
   const lockRef = useRef(false);
 
   function newGame() {
-    setCards(createShuffledCards());
+    setCards(createShuffledCards(theme));
     setSelected([]);
     setMoves(0);
     setSeconds(0);
@@ -22,6 +23,7 @@ export default function MemoryGame() {
     // Shuffling needs randomness, so the first deal happens client-side after mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     newGame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const won = cards?.every((c) => c.matched) ?? false;

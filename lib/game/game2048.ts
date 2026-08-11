@@ -3,8 +3,8 @@ export type Direction = "up" | "down" | "left" | "right";
 
 export const BOARD_SIZE = 4;
 
-export function createEmptyBoard(): Board {
-  return Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(0));
+export function createEmptyBoard(size = BOARD_SIZE): Board {
+  return Array.from({ length: size }, () => Array(size).fill(0));
 }
 
 function emptyCells(board: Board): [number, number][] {
@@ -76,22 +76,23 @@ export function move(board: Board, direction: Direction): { board: Board; scoreG
 
 export function isGameOver(board: Board): boolean {
   if (emptyCells(board).length > 0) return false;
-  for (let r = 0; r < BOARD_SIZE; r++) {
-    for (let c = 0; c < BOARD_SIZE; c++) {
+  const size = board.length;
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
       const v = board[r][c];
-      if (c + 1 < BOARD_SIZE && board[r][c + 1] === v) return false;
-      if (r + 1 < BOARD_SIZE && board[r + 1][c] === v) return false;
+      if (c + 1 < size && board[r][c + 1] === v) return false;
+      if (r + 1 < size && board[r + 1][c] === v) return false;
     }
   }
   return true;
 }
 
-export function hasWon(board: Board): boolean {
-  return board.some((row) => row.some((v) => v >= 2048));
+export function hasWon(board: Board, target = 2048): boolean {
+  return board.some((row) => row.some((v) => v >= target));
 }
 
-export function createInitialBoard(): Board {
-  let board = createEmptyBoard();
+export function createInitialBoard(size = BOARD_SIZE): Board {
+  let board = createEmptyBoard(size);
   board = addRandomTile(board);
   board = addRandomTile(board);
   return board;

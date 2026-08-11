@@ -3,19 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import {
   createInitialSnake,
-  GRID_SIZE,
   isOpposite,
   isOutOfBounds,
   isSelfCollision,
   nextHead,
   randomFood,
+  wrapPoint,
   type Direction,
   type Point,
 } from "@/lib/game/snake";
 
 const CELL_SIZE = 18;
-const CANVAS_SIZE = GRID_SIZE * CELL_SIZE;
-const BASE_SPEED_MS = 140;
 
 const KEY_TO_DIRECTION: Record<string, Direction> = {
   ArrowUp: "up",
@@ -33,7 +31,13 @@ interface GameState {
   gameOver: boolean;
 }
 
-export default function SnakeGame() {
+export default function SnakeGame({ config }: { config?: Record<string, unknown> }) {
+  const gridSize = (config?.gridSize as number) ?? 20;
+  const speedMs = (config?.speedMs as number) ?? 140;
+  const wraparound = (config?.wraparound as boolean) ?? false;
+  const storageKey = `snake-best-${(config?.variantId as string) ?? "default"}`;
+  const canvasSize = gridSize * CELL_SIZE;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState | null>(null);
   const [score, setScore] = useState(0);
@@ -48,7 +52,7 @@ export default function SnakeGame() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.fillStyle = "#f1f5f9";
-    ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.fillRect(0, 0, canvasSize, canvasSize);
 
     ctx.fillStyle = "#ef4444";
     ctx.fillRect(state.food.x * CELL_SIZE, state.food.y * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1);
@@ -60,12 +64,12 @@ export default function SnakeGame() {
   }
 
   function resetGame() {
-    const snake = createInitialSnake();
+    const snake = createInitialSnake(gridSize);
     stateRef.current = {
       snake,
       direction: "right",
       pendingDirection: "right",
-      food: randomFood(snake),
+      food: randomFood(snake, gridSize),
       running: true,
       gameOver: false,
     };
@@ -75,7 +79,7 @@ export default function SnakeGame() {
   }
 
   useEffect(() => {
-    const savedBest = Number(localStorage.getItem("snake-best") ?? 0);
+    const savedBest = Number(localStorage.getItem(storageKey) ?? 0);
     // Reading localStorage and seeding the initial food position both require the
     // browser, so this setup runs once client-side after mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -104,14 +108,28 @@ export default function SnakeGame() {
       if (!state || !state.running) return;
 
       state.direction = state.pendingDirection;
-      const head = nextHead(state.snake[0], state.direction);
+      let head = nextHead(state.snake[0], state.direction);
 
-      if (isOutOfBounds(head) || isSelfCollision(head, state.snake)) {
+      if (isOutOfBounds(head, gridSize)) {
+        if (wraparound) {
+          head = wrapPoint(head, gridSize);
+        } else {
+          state.running = false;
+          setGameOver(true);
+          setBest((b) => {
+            const nb = Math.max(b, state.snake.length - 3);
+            localStorage.setItem(storageKey, String(nb));
+            return nb;
+          });
+          return;
+        }
+      }
+      if (isSelfCollision(head, state.snake)) {
         state.running = false;
         setGameOver(true);
         setBest((b) => {
           const nb = Math.max(b, state.snake.length - 3);
-          localStorage.setItem("snake-best", String(nb));
+          localStorage.setItem(storageKey, String(nb));
           return nb;
         });
         return;
@@ -120,14 +138,15 @@ export default function SnakeGame() {
       const ateFood = head.x === state.food.x && head.y === state.food.y;
       state.snake = [head, ...state.snake];
       if (ateFood) {
-        state.food = randomFood(state.snake);
+        state.food = randomFood(state.snake, gridSize);
         setScore((s) => s + 1);
       } else {
         state.snake.pop();
       }
       draw();
-    }, BASE_SPEED_MS);
+    }, speedMs);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
 
   return (
@@ -147,11 +166,11 @@ export default function SnakeGame() {
           リセット
         </button>
       </div>
-      <div className="relative mx-auto" style={{ width: CANVAS_SIZE }}>
+      <div className="relative mx-auto" style={{ width: canvasSize }}>
         <canvas
           ref={canvasRef}
-          width={CANVAS_SIZE}
-          height={CANVAS_SIZE}
+          width={canvasSize}
+          height={canvasSize}
           className="mx-auto rounded-xl border border-slate-300"
         />
         {gameOver && (
@@ -163,7 +182,9 @@ export default function SnakeGame() {
           </div>
         )}
       </div>
-      <p className="text-center text-sm text-slate-500">矢印キーでヘビを操作します</p>
+      <p className="text-center text-sm text-slate-500">
+        矢印キーでヘビを操作します{wraparound ? "(壁を突き抜けます)" : ""}
+      </p>
     </div>
   );
 }
