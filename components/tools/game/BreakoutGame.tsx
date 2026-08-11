@@ -30,7 +30,7 @@ interface GameState {
   running: boolean;
 }
 
-function createInitialState(): GameState {
+function createInitialState(rows: number): GameState {
   return {
     paddleX: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
     ball: {
@@ -40,16 +40,18 @@ function createInitialState(): GameState {
       vy: 0,
       launched: false,
     },
-    bricks: createBricks(),
+    bricks: createBricks(rows),
     lives: 3,
     score: 0,
     running: true,
   };
 }
 
-export default function BreakoutGame() {
+export default function BreakoutGame({ config }: { config?: Record<string, unknown> }) {
+  const rows = (config?.rows as number) ?? 5;
+  const ballSpeed = (config?.ballSpeed as number) ?? 1;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stateRef = useRef<GameState>(createInitialState());
+  const stateRef = useRef<GameState>(createInitialState(rows));
   const keysRef = useRef<Set<string>>(new Set());
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -83,12 +85,12 @@ export default function BreakoutGame() {
     const state = stateRef.current;
     if (state.ball.launched) return;
     state.ball.launched = true;
-    state.ball.vx = 3 * (Math.random() < 0.5 ? -1 : 1);
-    state.ball.vy = -4;
+    state.ball.vx = 3 * ballSpeed * (Math.random() < 0.5 ? -1 : 1);
+    state.ball.vy = -4 * ballSpeed;
   }
 
   function resetGame() {
-    stateRef.current = createInitialState();
+    stateRef.current = createInitialState(rows);
     setScore(0);
     setLives(3);
     setStatus("playing");
@@ -113,6 +115,7 @@ export default function BreakoutGame() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handlePointerMove(e: React.MouseEvent<HTMLCanvasElement>) {

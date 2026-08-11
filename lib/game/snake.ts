@@ -23,8 +23,8 @@ export function nextHead(head: Point, direction: Direction): Point {
   return { x: head.x + d.x, y: head.y + d.y };
 }
 
-export function createInitialSnake(): Point[] {
-  const mid = Math.floor(GRID_SIZE / 2);
+export function createInitialSnake(gridSize = GRID_SIZE): Point[] {
+  const mid = Math.floor(gridSize / 2);
   return [
     { x: mid, y: mid },
     { x: mid - 1, y: mid },
@@ -32,10 +32,10 @@ export function createInitialSnake(): Point[] {
   ];
 }
 
-export function randomFood(occupied: Point[]): Point {
+export function randomFood(occupied: Point[], gridSize = GRID_SIZE): Point {
   const free: Point[] = [];
-  for (let x = 0; x < GRID_SIZE; x++) {
-    for (let y = 0; y < GRID_SIZE; y++) {
+  for (let x = 0; x < gridSize; x++) {
+    for (let y = 0; y < gridSize; y++) {
       if (!occupied.some((p) => p.x === x && p.y === y)) free.push({ x, y });
     }
   }
@@ -43,8 +43,12 @@ export function randomFood(occupied: Point[]): Point {
   return free[Math.floor(Math.random() * free.length)];
 }
 
-export function isOutOfBounds(p: Point): boolean {
-  return p.x < 0 || p.y < 0 || p.x >= GRID_SIZE || p.y >= GRID_SIZE;
+export function isOutOfBounds(p: Point, gridSize = GRID_SIZE): boolean {
+  return p.x < 0 || p.y < 0 || p.x >= gridSize || p.y >= gridSize;
+}
+
+export function wrapPoint(p: Point, gridSize = GRID_SIZE): Point {
+  return { x: (p.x + gridSize) % gridSize, y: (p.y + gridSize) % gridSize };
 }
 
 export function isSelfCollision(head: Point, body: Point[]): boolean {

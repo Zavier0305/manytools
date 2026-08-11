@@ -73,7 +73,10 @@ export function applyMove(board: ReversiBoard, move: LegalMove, player: Cell): R
 
 const CORNER_BONUS = 5;
 
-export function chooseCpuMove(moves: LegalMove[]): LegalMove {
+export function chooseCpuMove(moves: LegalMove[], difficulty: "easy" | "hard" = "hard"): LegalMove {
+  if (difficulty === "easy") {
+    return moves[Math.floor(Math.random() * moves.length)];
+  }
   let best = moves[0];
   let bestScore = -Infinity;
   for (const move of moves) {

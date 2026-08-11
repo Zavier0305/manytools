@@ -11,7 +11,8 @@ import {
   type ReversiBoard,
 } from "@/lib/game/reversi";
 
-export default function ReversiGame() {
+export default function ReversiGame({ config }: { config?: Record<string, unknown> }) {
+  const difficulty = (config?.difficulty as "easy" | "hard") ?? "hard";
   const [board, setBoard] = useState<ReversiBoard>(() => createInitialBoard());
   const [currentPlayer, setCurrentPlayer] = useState<Cell>(1);
   const [gameOver, setGameOver] = useState(false);
@@ -47,13 +48,14 @@ export default function ReversiGame() {
     if (currentPlayer === 2) {
       setThinking(true);
       const timeout = setTimeout(() => {
-        const move = chooseCpuMove(getLegalMoves(board, 2));
+        const move = chooseCpuMove(getLegalMoves(board, 2), difficulty);
         setBoard(applyMove(board, move, 2));
         setCurrentPlayer(1);
         setThinking(false);
       }, 600);
       return () => clearTimeout(timeout);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [board, currentPlayer, gameOver, legalMoves.length]);
 
   function handleClick(row: number, col: number) {

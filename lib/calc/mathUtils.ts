@@ -1,3 +1,32 @@
+export function isPrime(n: number): boolean {
+  if (!Number.isInteger(n) || n < 2) return false;
+  if (n < 4) return true;
+  if (n % 2 === 0) return false;
+  for (let i = 3; i * i <= n; i += 2) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+
+export function factorial(n: number): number {
+  if (n < 0 || !Number.isInteger(n)) throw new Error("0以上の整数を入力してください");
+  let result = 1;
+  for (let i = 2; i <= n; i++) result *= i;
+  return result;
+}
+
+export function permutations(n: number, r: number): number {
+  if (r > n || r < 0 || n < 0) return 0;
+  let result = 1;
+  for (let i = 0; i < r; i++) result *= n - i;
+  return result;
+}
+
+export function combinations(n: number, r: number): number {
+  if (r > n || r < 0 || n < 0) return 0;
+  return permutations(n, r) / factorial(r);
+}
+
 export function gcd(a: number, b: number): number {
   a = Math.abs(a);
   b = Math.abs(b);
