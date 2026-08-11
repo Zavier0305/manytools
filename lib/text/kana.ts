@@ -1,0 +1,11 @@
+export function toKatakana(input: string): string {
+  return input.replace(/[ぁ-ゖ]/g, (ch) =>
+    String.fromCharCode(ch.charCodeAt(0) + 0x60)
+  );
+}
+
+export function toHiragana(input: string): string {
+  return input.replace(/[ァ-ヶ]/g, (ch) =>
+    String.fromCharCode(ch.charCodeAt(0) - 0x60)
+  );
+}
